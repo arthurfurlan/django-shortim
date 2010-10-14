@@ -1,10 +1,18 @@
 {% extends "base.html" %}
-
 {% load i18n %}
 
-{% block subtitle %}<h3>{% trans "Enter the long URL to be shortened..." %}</h3>{% endblock %}
+{% block body_includes %}
+    <div id="new_url">{{ SHORTIM_SITE_SCHEME|default:'http' }}://{{ SITE.domain }}/...</div>
+    <div id="twitter"></div>
+{% endblock %}
 
-{% block script_content %}load_home_events('{% trans "Share on Twitter:" %}');{% endblock %}
+{% block script_includes %}
+    <script src="http://platform.twitter.com/anywhere.js?id=7hjBfqqDV9xldQSlkCp4Q" type="text/javascript"></script>
+{% endblock %}
+
+{% block script_content %}
+    load_home_events('{% trans "Share on Twitter:" %}');
+{% endblock %}
 
 {% block content %}
     <form action="." method="post" id="shorturl_form">{% csrf_token %}
@@ -13,6 +21,4 @@
         {{ form.url.errors }}
         <p><input type="submit" value="{% trans "Create" %}" /></p>
     </form>
-    <div id="new_url">{{ SHORTIM_SITE_SCHEME|default:'http' }}://{{ SITE.domain }}/...</div>
-    <div id="twitter"></div>
 {% endblock %}
