@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block subtitle %}<h3>{% trans "Ranking" %}</h3>{% endblock %}
+
+{% block content %}
+    <ul>{% for object in object_list %}
+        <li><a href="{{ object.get_short_full_url }}">{{ object.get_short_full_url }}</a></li>
+    {% empty %}
+        <li>{% trans "OMG! We don't have any URL submitted yet... weird." %}</li>
+    {% endfor %}</ul>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+    <b>{{ object.get_absolute_full_url }}</b><br />
+    <p><b>{% trans "Address" %}:</b> {{ object.url }}</p>
+    <p><b>{% trans "Hits" %}:</b> {{ object.hits }}</p>
+    <p><b>{% trans "Created on" %}:</b> {{ object.date }}</p>
+{% endblock %}

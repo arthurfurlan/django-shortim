@@ -1,0 +1,62 @@
+# Brazilian Portuguese (pt_BR) translation file.
+#
+# Copyright (C) 2010 - Valvim Technologies
+# This file is distributed under the same license as the shortim package.
+#
+# Arthur Furlan <afurlan@valv.im>, 2010.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Shortim 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-10-12 03:27-0300\n"
+"PO-Revision-Date: 2010-10-11 22:05-0300\n"
+"Last-Translator: Arthur Furlan <afurlan@valv.im>\n"
+"Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: forms.py:25
+#, fuzzy
+msgid "Woow, your URL was successfully shortened."
+msgstr "Viva! Sua URL foi encurtada com sucesso... bem melhor agora!"
+
+#: models.py:30
+msgid "Short URL"
+msgstr "URL curta"
+
+#: templates/shortim/shorturl_detail.html:7
+msgid "Address"
+msgstr "Endereço"
+
+#: templates/shortim/shorturl_detail.html:8
+msgid "Hits"
+msgstr "Accesso"
+
+#: templates/shortim/shorturl_detail.html:9
+msgid "Created on"
+msgstr "Criado em"
+
+#: templates/shortim/shorturl_form.html:5
+msgid "Enter the long URL to be shortened..."
+msgstr "Entre com a URL longa para ser encurtada..."
+
+#: templates/shortim/shorturl_form.html:7
+msgid "Share on Twitter:"
+msgstr "Compartilhe com o Twitter:"
+
+#: templates/shortim/shorturl_form.html:14
+msgid "Create"
+msgstr "Criar"
+
+#: templates/shortim/shorturl_list.html:5
+msgid "Ranking"
+msgstr "Ranking"
+
+#: templates/shortim/shorturl_list.html:11
+msgid "OMG! We don't have any URL submitted yet... weird."
+msgstr "OMG! Nós não temos nenhuma URL cadastrada ainda... estranho."

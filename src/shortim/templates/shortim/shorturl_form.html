@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block subtitle %}<h3>{% trans "Enter the long URL to be shortened..." %}</h3>{% endblock %}
+
+{% block script_content %}load_home_events('{% trans "Share on Twitter:" %}');{% endblock %}
+
+{% block content %}
+    <form action="." method="post" id="shorturl_form">{% csrf_token %}
+        <p>{{ form.url.label_tag }}
+            {{ form.url }}</p>
+        {{ form.url.errors }}
+        <p><input type="submit" value="{% trans "Create" %}" /></p>
+    </form>
+    <div id="new_url">{{ SHORTIM_SITE_SCHEME|default:'http' }}://{{ SITE.domain }}/...</div>
+    <div id="twitter"></div>
+{% endblock %}
