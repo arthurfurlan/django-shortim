@@ -14,8 +14,7 @@ def _api_response(response_text, response_type=None):
         response_text = json.dumps(response_text)
     return HttpResponse(response_text)
 
-
-def create(request, api=False):
+def create(request, api=False, template_name=None):
 
     ## process or display the form based on the request method
     if request.method == 'POST' or api is True:
@@ -46,11 +45,12 @@ def create(request, api=False):
         form = ShortURLForm()
 
     ## render the form template
-    return render_to_response('shortim/shorturl_form.html',
-        locals(), context_instance=RequestContext(request))
+    template_name = template_name or 'shortim/shorturl_form.html'
+    return render_to_response(template_name, locals(),
+        context_instance=RequestContext(request))
 
 
-def preview(request, code=None, api=False):
+def preview(request, code=None, api=False, template_name=None):
 
     ## if the page is being accessed as API, return the clean data
     if api is True:
@@ -59,7 +59,7 @@ def preview(request, code=None, api=False):
             code = url.rstrip('/').split('/')[-1]
         object_id = SequenceMapper.to_decimal(code)
         shorturl = get_object_or_404(ShortURL, pk=object_id)
-        return HttpResponse(shorturl.url)
+        return _api_response(shorturl.url, request.GET.get('type'))
 
     ## get the object id from code
     object_id = SequenceMapper.to_decimal(code)
@@ -67,10 +67,12 @@ def preview(request, code=None, api=False):
         'queryset': ShortURL.objects,
         'object_id': object_id,
     }
+    if template_name is not None:
+        info_dict['template_name'] = template_name
     return list_detail.object_detail(request, **info_dict)
 
 
-def ranking(request, num_elements):
+def ranking(request, num_elements, template_name=None):
 
     ## get the list of objets ordered by their number of hits
     ordering = ['-hits', '-date']
@@ -78,6 +80,8 @@ def ranking(request, num_elements):
     info_dict = { 
         'queryset': queryset
     }
+    if template_name is not None:
+        info_dict['template_name'] = template_name
     return list_detail.object_list(request, **info_dict)
 
 
