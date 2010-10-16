@@ -12,10 +12,7 @@ class ShortURLForm(forms.ModelForm):
 
     def save(self, request, api):
         url = self.cleaned_data['url']
-        try:
-            instance = ShortURL.objects.get(url=url)
-        except ShortURL.DoesNotExist:
-            instance = ShortURL(url=url)
+        instance = ShortURL.get_new_or_existent_object(url=url)
 
         if not instance.id:
             instance.remote_user = self.cleaned_data['remote_user']

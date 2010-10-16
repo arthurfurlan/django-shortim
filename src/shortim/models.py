@@ -32,6 +32,14 @@ class ShortURL(models.Model):
     def __unicode__(self):
         return self.get_short_full_url()
 
+    @staticmethod
+    def get_new_or_existent_object(*args, **kwargs):
+        try:
+            instance = ShortURL.objects.get(*args, **kwargs)
+        except ShortURL.DoesNotExist:
+            instance = ShortURL(*args, **kwargs)
+        return instance
+
     @models.permalink
     def get_absolute_url(self):
         code = SequenceMapper.from_decimal(self.id)
@@ -52,7 +60,6 @@ class ShortURL(models.Model):
         cur_site = Site.objects.get_current()
         return scheme.lower() + '://' + cur_site.domain \
             + self.get_short_url()
-
 
 class SequenceMapper(object):
 
