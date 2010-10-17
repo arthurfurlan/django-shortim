@@ -20,7 +20,7 @@ SHORTIM_SHORTURL_CHARS = getattr(settings,
 
 class ShortURL(models.Model):
 
-    url = models.URLField('url', max_length=255, db_index=True)
+    url = models.URLField('url', max_length=255, db_index=True, verify_exists=False)
     hits = models.IntegerField('hits', default=0, editable=False)
     date = models.DateTimeField('date', auto_now_add=True)
     remote_user = models.IPAddressField('remote user')
