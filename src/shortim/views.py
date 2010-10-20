@@ -72,7 +72,7 @@ def preview(request, code=None, api=False, template_name=None):
     return list_detail.object_detail(request, **info_dict)
 
 
-def ranking(request, num_elements, template_name=None):
+def ranking(request, num_elements=10, template_name=None):
 
     ## get the list of objets ordered by their number of hits
     ordering = ['-hits', '-date']

@@ -39,7 +39,6 @@ shorturl_api_preview = url(
 shorturl_ranking = url(
     r'^top-10/$',
     views.ranking,
-    { 'num_elements':10 },
     name='shorturl_ranking',
 )
 
