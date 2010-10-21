@@ -9,12 +9,4 @@
     {% empty %}
         <li>{% trans "OMG! We don't have any URL submitted yet... weird." %}</li>
     {% endfor %}</ul>
-
-    {% if day_object_list %}
-        <ul>{% for object in day_object_list %}
-            <li><a href="{{ object.get_short_full_url }}">{{ object.get_short_full_url }}</a></li>
-        {% empty %}
-            <li>{% trans "OMG! We don't have any URL submitted yet... weird." %}</li>
-        {% endfor %}</ul>
-    {% endif %}
 {% endblock %}
