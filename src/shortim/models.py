@@ -33,11 +33,30 @@ class ShortURL(models.Model):
         return self.get_short_full_url()
 
     @staticmethod
-    def get_new_or_existent_object(*args, **kwargs):
+    def get_or_create_object(url, remote_user):
+
+        ## create default instance
+        instance = ShortURL(url=url, remote_user=remote_user)
+
+        ## get the domain of the new url
+        if url.startswith('http://') or url.startswith('https://'):
+            clean_url = url.split('/')[2]
+        else:
+            clean_url = url
+        domain = clean_url.split('/')[0]
+
+        ## check if the user is not trying to create a short url of
+        ## this site, avoid url shotening recursion
+        current_site = Site.objects.get_current()
+        if domain == current_site.domain:
+            return instance
+
+        ## it is not a local instance, try to get an existent object
         try:
-            instance = ShortURL.objects.get(*args, **kwargs)
+            instance = ShortURL.objects.get(url=url)
         except ShortURL.DoesNotExist:
-            instance = ShortURL(*args, **kwargs)
+            instance.save()
+
         return instance
 
     @models.permalink

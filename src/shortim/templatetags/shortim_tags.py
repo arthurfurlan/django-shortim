@@ -14,8 +14,6 @@ def shortim_short_url(url):
         url = 'http://' + current_site.domain + url
     
     ## get the object and, if it not exists, create one
-    shorturl = ShortURL.get_new_or_existent_object(url=url)
-    if not shorturl.id:
-        shorturl.remote_user = '127.0.0.1'
-        shorturl.save()
+    remote_user = '127.0.0.1'
+    shorturl = ShortURL.get_or_create_object(url, remote_user)
     return shorturl.get_short_full_url()

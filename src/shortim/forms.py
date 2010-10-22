@@ -12,11 +12,8 @@ class ShortURLForm(forms.ModelForm):
 
     def save(self, request, api):
         url = self.cleaned_data['url']
-        instance = ShortURL.get_new_or_existent_object(url=url)
-
-        if not instance.id:
-            instance.remote_user = self.cleaned_data['remote_user']
-            instance.save()
+        remote_user = self.cleaned_data['remote_user']
+        instance = ShortURL.get_or_create_object(url, remote_user)
 
         if not api:
             message = _('Woow, your URL was successfully shortened.')
