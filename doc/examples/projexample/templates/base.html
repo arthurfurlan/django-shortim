@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<html>
+    <head>{% block head %}
+        <title>example.com</title>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    {% endblock %}</head>
+
+    <body>{% block body %}
+        <div class="wrapper">{% block body_wrapper %}
+            <div class="header">{% block body_header %}
+                <h1><a href="/">example</a></h1>
+                {% include "menu.html" %}
+            {% endblock %}</div>
+            <div class="content">{% block body_content %}
+                {% if messages %}<ul class="messages">
+                    {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>{% endif %}
+
+                {% block content %}{% endblock %}
+            {% endblock %}{% block body_includes %}{% endblock %}</div>
+            <div class="footer">{% block body_footer %}
+                example.com
+            {% endblock %}</div>
+        {% endblock %}</div>
+    {% endblock %}</body>
+</html>
