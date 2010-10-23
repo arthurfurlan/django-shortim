@@ -62,7 +62,7 @@ class ShortURL(models.Model):
     @models.permalink
     def get_absolute_url(self):
         code = SequenceMapper.from_decimal(self.id)
-        return ('shorturl_preview', (), {'code':code})
+        return ('shortim_preview', (), {'code':code})
 
     def get_absolute_full_url(self):
         scheme = getattr(settings, 'SHORTIM_SITE_SCHEME', 'http')

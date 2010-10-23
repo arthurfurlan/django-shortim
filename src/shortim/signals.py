@@ -61,7 +61,7 @@ def create_first_shorturl(sender, **kwargs):
     current_site = sender.Site.objects.get_current()
     scheme = getattr(settings, 'SHORTIM_SITE_SCHEME', 'http')
     url = scheme.lower() + '://' + current_site.domain \
-            + reverse('shorturl_create')
+            + reverse('shortim_create')
 
     shorturl = ShortURL(url=url, remote_user='127.0.0.1')
     shorturl.save()
