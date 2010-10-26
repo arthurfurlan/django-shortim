@@ -65,4 +65,4 @@ def create_first_shorturl(sender, **kwargs):
 
     shorturl = ShortURL(url=url, remote_user='127.0.0.1')
     shorturl.save()
-    print 'First short URL created: ', shorturl.get_absolute_full_url()
+    print 'First short URL created: %s\n' % shorturl.get_absolute_full_url()
