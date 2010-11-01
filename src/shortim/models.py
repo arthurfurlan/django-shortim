@@ -4,8 +4,10 @@ from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.sites.models import Site
+from BeautifulSoup import BeautifulSoup
 from itertools import product
 from datetime import datetime
+import urllib2
 import string
 import math
 
@@ -33,7 +35,7 @@ class ShortURL(models.Model):
         return self.get_short_full_url()
 
     @staticmethod
-    def get_or_create_object(url, remote_user):
+    def get_or_create_object(url, remote_user, canonical_url=False):
 
         ## create default instance
         instance = ShortURL(url=url, remote_user=remote_user)
@@ -58,6 +60,21 @@ class ShortURL(models.Model):
             instance.save()
 
         return instance
+
+    @staticmethod
+    def get_canonical_url(url):
+
+        ## get the page content
+        http = urllib2.urlopen(url)
+        html = http.read()
+        http.close()
+
+        ## find the canonical url
+        soup = BeautifulSoup(html)
+        for meta in soup.findAll('meta'):
+            if meta.get('rev') == 'canonical':
+                return meta.get('href')
+        return ''
 
     @models.permalink
     def get_absolute_url(self):
