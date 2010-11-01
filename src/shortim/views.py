@@ -42,7 +42,10 @@ def create(request, api=False, template_name=None):
 
     ## the page was not requested as POST neithe as API
     else:
-        form = ShortURLForm()
+        initial = { 'url': request.GET.get('url') }
+        if initial['url'] == 'referer':
+            initial['url'] = request.META.get('HTTP_REFERER')
+        form = ShortURLForm(initial=initial)
 
     ## render the form template
     template_name = template_name or 'shortim/shorturl_form.html'
