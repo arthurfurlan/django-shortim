@@ -8,6 +8,7 @@ from BeautifulSoup import BeautifulSoup
 from itertools import product
 from datetime import datetime
 import urllib2
+import urllib
 import string
 import math
 
@@ -19,6 +20,10 @@ DEFAULT_SHORTURL_CHARS += string.digits
 ## allow user to configure a different chars chain
 SHORTIM_SHORTURL_CHARS = getattr(settings,
     'SHORTIM_SHORTURL_CHARS', DEFAULT_SHORTURL_CHARS)
+
+## allow user to configure the thumbail size
+SHORTIM_THUMBNAIL_SIZE = getattr(settings,
+    'SHORTIM_THUMBNAIL_SIZE', 200)
 
 class ShortURL(models.Model):
 
@@ -75,6 +80,11 @@ class ShortURL(models.Model):
             if meta.get('rev') == 'canonical':
                 return meta.get('href')
         return ''
+
+    def get_thumbnail_tag(self):
+        api = 'http://api.thumbalizr.com/?url=%s&width=%d'
+        url = api % (urllib.quote(self.url), SHORTIM_THUMBNAIL_SIZE)
+        return '<img src="%s" />' % url
 
     @models.permalink
     def get_absolute_url(self):
