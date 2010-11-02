@@ -7,7 +7,7 @@ from django.contrib.sites.models import Site
 from BeautifulSoup import BeautifulSoup
 from itertools import product
 from datetime import datetime
-import urllib2
+import httplib
 import urllib
 import string
 import math
@@ -24,6 +24,12 @@ SHORTIM_SHORTURL_CHARS = getattr(settings,
 ## allow user to configure the thumbail size
 SHORTIM_THUMBNAIL_SIZE = getattr(settings,
     'SHORTIM_THUMBNAIL_SIZE', 200)
+
+## number of times a page can be redirected
+SHORTIM_REDIRECT_LIMIT = 10
+
+class RedirectLimitError(Exception):
+    pass
 
 class ShortURL(models.Model):
 
@@ -67,14 +73,57 @@ class ShortURL(models.Model):
         return instance
 
     @staticmethod
+    def get_response_html(url, redirect_count=0):
+
+        ## check if the limit was reched
+        if redirect_count >= SHORTIM_REDIRECT_LIMIT:
+            raise RedirectLimitError('Redirection limit reached.')
+
+        ## remove the protocol part and set the port based on it
+        server_port = 80
+        if url.startswith('http:') or url.startswith('https:'):
+            pieces = url.split('/')
+            if pieces[0] == 'https:':
+                server_port = 443
+
+            url = '/'.join(pieces[2:])
+            if '/' not in url:
+                url += '/'
+
+        ## extract server address and server path
+        server_addr, server_path = url.split('/', 1)
+        server_path = '/' + server_path
+
+        ## get the server port from "domain:port" urls
+        try:
+            server_addr, server_port = server_addr.split(':')
+        except ValueError:
+            pass
+
+        ## start an HTTP connection
+        conn = httplib.HTTPConnection(server_addr, server_port)
+        conn.request("GET", server_path)
+        response = conn.getresponse()
+
+        ## if the page redirects to another one, go to recursive
+        location = response.getheader('location')
+        if location:
+            count += 1  # avoid infinite loops
+            return ShortURL.get_response_html(location, count)
+
+        ## if the page does not return an HTML content (binary?), return
+        content_type = response.getheader('content-type')
+        if 'text/html' not in content_type:
+            return
+
+        ## finally, return the HTML response
+        return response.read()
+
+    @staticmethod
     def get_canonical_url(url):
 
-        ## get the page content
-        http = urllib2.urlopen(url)
-        html = http.read()
-        http.close()
-
         ## find the canonical url
+        html = ShortURL.get_response_html(url)
         soup = BeautifulSoup(html)
         for meta in soup.findAll('meta'):
             if meta.get('rev') == 'canonical':
