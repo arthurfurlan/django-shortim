@@ -34,6 +34,8 @@ class RedirectLimitError(Exception):
 class ShortURL(models.Model):
 
     url = models.URLField('url', max_length=255, db_index=True, verify_exists=False)
+    canonical_url = models.URLField('canonical url', max_length=255,
+            null=True, blank=True, default=None, verify_exists=False)
     hits = models.IntegerField('hits', default=0, editable=False)
     date = models.DateTimeField('date', auto_now_add=True)
     remote_user = models.IPAddressField('remote user')
@@ -46,36 +48,9 @@ class ShortURL(models.Model):
         return self.get_short_full_url()
 
     @staticmethod
-    def get_or_create_object(url, remote_user, canonical_url=False):
+    def _get_response_html(url, redirect_count=0):
 
-        ## create default instance
-        instance = ShortURL(url=url, remote_user=remote_user)
-
-        ## get the domain of the new url
-        if url.startswith('http://') or url.startswith('https://'):
-            clean_url = url.split('/')[2]
-        else:
-            clean_url = url
-        domain = clean_url.split('/')[0]
-
-        ## check if the user is not trying to create a short url of
-        ## this site, avoid url shotening recursion
-        current_site = Site.objects.get_current()
-        if domain == current_site.domain:
-            return instance
-
-        ## it is not a local instance, try to get an existent object
-        try:
-            instance = ShortURL.objects.get(url=url)
-        except ShortURL.DoesNotExist:
-            instance.save()
-
-        return instance
-
-    @staticmethod
-    def get_response_html(url, redirect_count=0):
-
-        ## check if the limit was reched
+        ## check if the limit was reached
         if redirect_count >= SHORTIM_REDIRECT_LIMIT:
             raise RedirectLimitError('Redirection limit reached.')
 
@@ -120,10 +95,30 @@ class ShortURL(models.Model):
         return response.read()
 
     @staticmethod
+    def get_or_create_object(url, remote_user, canonical=False):
+
+        ## it is not a local instance, try to get an existent object
+        try:
+            instance = ShortURL.objects.get(url=url)
+        except ShortURL.DoesNotExist:
+            instance = ShortURL(url=url, remote_user=remote_user)
+
+        ## get the canonical_url of the page
+        if canonical and instance.canonical_url is None:
+            instance.canonical_url = ShortURL.get_canonical_url(url)
+            instance.save()
+
+        ## if the instance is not saved yet, save it
+        if not instance.pk:
+            instance.save()
+
+        return instance
+
+    @staticmethod
     def get_canonical_url(url):
 
         ## find the canonical url
-        html = ShortURL.get_response_html(url)
+        html = ShortURL._get_response_html(url)
         soup = BeautifulSoup(html)
         for meta in soup.findAll('meta'):
             if meta.get('rev') == 'canonical':

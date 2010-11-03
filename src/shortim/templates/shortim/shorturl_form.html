@@ -5,6 +5,7 @@
     <form action="." method="post" id="shorturl_form">{% csrf_token %}
         <p>{{ form.url.label_tag }}
             {{ form.url }}</p>
+        {{ form.canonical }} {{ form.canonical.label_tag }}
         {{ form.url.errors }}
         <p><input type="submit" value="{% trans "Create" %}" /></p>
     </form>

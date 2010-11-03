@@ -7,13 +7,19 @@ from models import ShortURL
 
 class ShortURLForm(forms.ModelForm):
 
+    canonical = forms.BooleanField(required=False, label=
+            _('Get canonical URL (if it exists)'))
+
     class Meta:
         model = ShortURL
 
     def save(self, request, api):
+        
         url = self.cleaned_data['url']
         remote_user = self.cleaned_data['remote_user']
-        instance = ShortURL.get_or_create_object(url, remote_user)
+        canonical = self.cleaned_data.get('canonical', False)
+
+        instance = ShortURL.get_or_create_object(url, remote_user, canonical)
 
         if not api:
             message = _('Woow, your URL was successfully shortened.')

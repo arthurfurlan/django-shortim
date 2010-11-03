@@ -31,7 +31,12 @@ def create(request, api=False, template_name=None):
 
             ## if page is being accessed as API, return clean data
             if api is True:
-                return _api_response(str(instance), data.get('type'))
+                response = ''
+                if request.GET.get('canonical') == '1':
+                    response = instance.canonical_url
+                if not response:
+                    response = instance.get_short_full_url()
+                return _api_response(response, data.get('type'))
 
             ## redirect to the preview page
             return HttpResponseRedirect(instance.get_absolute_url())
