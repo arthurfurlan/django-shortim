@@ -57,7 +57,6 @@ def create(request, api=False, template_name=None):
     return render_to_response(template_name, locals(),
         context_instance=RequestContext(request))
 
-
 def preview(request, code=None, api=False, template_name=None):
 
     ## if the page is being accessed as API, return the clean data
@@ -71,27 +70,29 @@ def preview(request, code=None, api=False, template_name=None):
 
     ## get the object id from code
     object_id = SequenceMapper.to_decimal(code)
+    template_name = template_name or 'base_shorturl_preview.html'
+
     info_dict = {
         'queryset': ShortURL.objects,
         'object_id': object_id,
+        'template_name': template_name,
     }
 
-    template_name = template_name or 'base_shorturl_preview.html'
     return list_detail.object_detail(request, **info_dict)
-
 
 def ranking(request, num_elements=10, template_name=None):
 
     ## get the list of objets ordered by their number of hits
     ordering = ['-hits', '-date']
     queryset = ShortURL.objects.order_by(*ordering)[:num_elements]
+    template_name = template_name or 'base_shorturl_ranking.html'
+
     info_dict = { 
-        'queryset': queryset
+        'queryset': queryset,
+        'template_name': template_name,
     }
 
-    template_name = template_name or 'base_shorturl_ranking.html'
     return list_detail.object_list(request, **info_dict)
-
 
 def redirect(request, code):
 
