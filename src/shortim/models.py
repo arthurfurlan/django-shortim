@@ -76,20 +76,23 @@ class ShortURL(models.Model):
             pass
 
         ## start an HTTP connection
-        conn = httplib.HTTPConnection(server_addr, server_port)
-        conn.request("GET", server_path)
-        response = conn.getresponse()
+        try:
+            conn = httplib.HTTPConnection(server_addr, server_port)
+            conn.request("GET", server_path)
+            response = conn.getresponse()
+        except:
+            return ''
 
         ## if the page redirects to another one, go to recursive
         location = response.getheader('location')
         if location:
-            count += 1  # avoid infinite loops
-            return ShortURL.get_response_html(location, count)
+            redirect_count += 1  # avoid infinite loops
+            return ShortURL._get_response_html(location, redirect_count)
 
-        ## if the page does not return an HTML content (binary?), return
+        ## if the page does not return an HTML content, return
         content_type = response.getheader('content-type')
         if 'text/html' not in content_type:
-            return
+            return ''
 
         ## finally, return the HTML response
         return response.read()
@@ -119,6 +122,9 @@ class ShortURL(models.Model):
 
         ## find the canonical url
         html = ShortURL._get_response_html(url)
+        if not html:
+            return ''
+
         soup = BeautifulSoup(html)
         for meta in soup.findAll('meta'):
             if meta.get('rev') == 'canonical':
