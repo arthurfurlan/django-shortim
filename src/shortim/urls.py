@@ -14,7 +14,7 @@ shortim_create = url(
 
 ## creator view (api version)
 shortim_api_create = url(
-    r'^api/create$',
+    r'^api/create/$',
     views.create,
     { 'api':True },
     name='shortim_api_create',
@@ -22,7 +22,7 @@ shortim_api_create = url(
 
 ## preview view
 shortim_preview = url(
-    r'^preview/(?P<code>[\w\d]+)/$',
+    r'^preview/(?P<code>[\w\d]+/)$',
     views.preview,
     name='shortim_preview',
 )
