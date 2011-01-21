@@ -131,12 +131,8 @@ class ShortURL(models.Model):
             return ''
 
         for link in soup.findAll('link'):
-            if link.get('rel') == 'canonical':
+            if link.get('rel') == 'canonical' or link.get('rev') == 'canonical':
                 return link.get('href')
-
-        for meta in soup.findAll('meta'):
-            if meta.get('rev') == 'canonical':
-                return meta.get('href')
 
         return ''
 
