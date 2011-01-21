@@ -126,9 +126,15 @@ class ShortURL(models.Model):
             return ''
 
         soup = BeautifulSoup(html)
+
+        for link in soup.findAll('link'):
+            if link.get('rel') == 'canonical':
+                return link.get('href')
+
         for meta in soup.findAll('meta'):
             if meta.get('rev') == 'canonical':
                 return meta.get('href')
+
         return ''
 
     def get_thumbnail_tag(self):
