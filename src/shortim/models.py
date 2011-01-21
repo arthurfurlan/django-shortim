@@ -4,7 +4,7 @@ from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.sites.models import Site
-from BeautifulSoup import BeautifulSoup
+from BeautifulSoup import BeautifulSoup, HTMLParseError
 from itertools import product
 from datetime import datetime
 import httplib
@@ -125,7 +125,10 @@ class ShortURL(models.Model):
         if not html:
             return ''
 
-        soup = BeautifulSoup(html)
+        try:
+            soup = BeautifulSoup(html)
+        except HTMLParseError:
+            return ''
 
         for link in soup.findAll('link'):
             if link.get('rel') == 'canonical':
