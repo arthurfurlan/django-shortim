@@ -65,8 +65,11 @@ def preview(request, code=None, api=False, template_name=None):
             url = request.GET.get('url')
             code = url.rstrip('/').split('/')[-1]
         object_id = SequenceMapper.to_decimal(code)
-        shorturl = get_object_or_404(ShortURL, pk=object_id)
-        return _api_response(shorturl.url, request.GET.get('type'))
+        try:
+            shorturl = ShortURL.objects.get(pk=object_id).url
+        except ShortURL.DoesNotExist:
+            shorturl = ''
+        return _api_response(shorturl, request.GET.get('type'))
 
     ## get the object id from code
     object_id = SequenceMapper.to_decimal(code)
