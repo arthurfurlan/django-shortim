@@ -1,0 +1,4 @@
+# crontab entries to perform the upload of the URLs to 301Works.org
+
+# m h dom mon dow user	command
+55 03 1,11,21 * *   root    /path-to-shortim/bin/upload-301works /path-of-project-basedir/
