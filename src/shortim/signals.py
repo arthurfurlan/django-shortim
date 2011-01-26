@@ -92,7 +92,7 @@ def upload_301works(*args, **kwargs):
         + "--header 'x-archive-meta-creator:%s' " \
         + "--header 'authorization: LOW %s:%s' " \
         + "--upload-file %s " \
-        + "http://s3.us.archive.org/%s/%s/"
+        + "http://s3.us.archive.org/%s/%s"
     curl_command = curl_command % (
             settings.SHORTIM_301WORKS_COLLECTION,
             unique_identifier,
