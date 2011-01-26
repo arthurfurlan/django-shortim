@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from models import ShortURL
+from datetime import datetime
 
 DEFAULT_SITE_DOMAIN = 'example.com'
 
@@ -66,3 +67,12 @@ def create_first_shorturl(sender, **kwargs):
     shorturl = ShortURL(url=url, remote_user='127.0.0.1')
     shorturl.save()
     print 'First short URL created: %s\n' % shorturl.get_absolute_full_url()
+
+def upload_301works(*args, **kwargs):
+    fname = '/tmp/shortim-%s' % datetime.now().strftime('%Y%m%d%H%M%S')
+    f = open(fname, 'w+')
+    for u in ShortURL.objects.all():
+        line = '%s,%s,%s,%d\n' % (u.get_short_full_url(),
+                u.url, u.date.isoformat(), u.hits)
+        f.write(line)
+    f.close()
