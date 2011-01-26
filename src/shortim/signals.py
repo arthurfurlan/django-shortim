@@ -71,7 +71,7 @@ def create_first_shorturl(sender, **kwargs):
 def upload_301works(*args, **kwargs):
     fname = '/tmp/shortim-%s' % datetime.now().strftime('%Y%m%d%H%M%S')
     f = open(fname, 'w+')
-    for u in ShortURL.objects.all():
+    for u in ShortURL.objects.all().order_by('id'):
         line = '%s,%s,%s,%d\n' % (u.get_short_full_url(),
                 u.url, u.date.isoformat(), u.hits)
         f.write(line)
