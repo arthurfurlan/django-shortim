@@ -4,6 +4,8 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from models import ShortURL
 from datetime import datetime
+import subprocess
+import os
 
 DEFAULT_SITE_DOMAIN = 'example.com'
 
@@ -69,10 +71,41 @@ def create_first_shorturl(sender, **kwargs):
     print 'First short URL created: %s\n' % shorturl.get_absolute_full_url()
 
 def upload_301works(*args, **kwargs):
-    fname = '/tmp/shortim-%s' % datetime.now().strftime('%Y%m%d%H%M%S')
-    f = open(fname, 'w+')
+
+    ## create the 301works.org file
+    unique_identifier = settings.SHORTIM_301WORKS_CREATOR \
+        + '.' + datetime.now().strftime('%Y.%m.%d')
+    temp_file = '/tmp/%s.csv' % unique_identifier
+    f = open(temp_file, 'w+')
     for u in ShortURL.objects.all().order_by('id'):
         line = '%s,%s,%s,%d\n' % (u.get_short_full_url(),
                 u.url, u.date.isoformat(), u.hits)
         f.write(line)
     f.close()
+
+    ## create the upload command via curl
+    curl_command = "curl -v --location --header 'x-amz-auto-make-bucket:1' " \
+        + "--header 'x-archive-meta01-collection:%s' " \
+        + "--header 'x-archive-meta-mediatype:software' " \
+        + "--header 'x-archive-meta-title:%s' " \
+        + "--header 'x-archive-meta-description:A list of all urls in the %s database as of %s' " \
+        + "--header 'x-archive-meta-creator:%s' " \
+        + "--header 'authorization: LOW %s:%s' " \
+        + "--upload-file %s " \
+        + "http://s3.us.archive.org/%s/%s/"
+    curl_command = curl_command % (
+            settings.SHORTIM_301WORKS_COLLECTION,
+            unique_identifier,
+            settings.SHORTIM_301WORKS_CREATOR,
+            datetime.now().strftime('%Y-%m-%d'),
+            settings.SHORTIM_301WORKS_CREATOR,
+            settings.SHORTIM_301WORKS_ACCESSKEY,
+            settings.SHORTIM_301WORKS_SECRETKEY,
+            file_name,
+            unique_identifier,
+            os.path.basename(file_name),
+    )
+
+    ## execute the command and upload the file
+    subprocess.call(curl_command, shell=True)
+    os.unlink(temp_file)
