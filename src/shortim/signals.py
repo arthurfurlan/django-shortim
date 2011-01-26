@@ -83,7 +83,7 @@ def upload_301works(*args, **kwargs):
         f.write(line)
     f.close()
 
-    ## create the upload command via curl
+    ## create the upload command via curl (FIXME: rewrite using pycurl)
     curl_command = "curl -v --location --header 'x-amz-auto-make-bucket:1' " \
         + "--header 'x-archive-meta01-collection:%s' " \
         + "--header 'x-archive-meta-mediatype:software' " \
@@ -101,9 +101,9 @@ def upload_301works(*args, **kwargs):
             settings.SHORTIM_301WORKS_CREATOR,
             settings.SHORTIM_301WORKS_ACCESSKEY,
             settings.SHORTIM_301WORKS_SECRETKEY,
-            file_name,
+            temp_file,
             unique_identifier,
-            os.path.basename(file_name),
+            os.path.basename(temp_file),
     )
 
     ## execute the command and upload the file
