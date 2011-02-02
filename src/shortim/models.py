@@ -6,7 +6,8 @@ from django.utils.translation import ugettext as _
 from django.contrib.sites.models import Site
 from BeautifulSoup import BeautifulSoup, HTMLParseError
 from itertools import product
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.core.exceptions import ValidationError
 import httplib
 import urllib
 import string
@@ -28,6 +29,12 @@ SHORTIM_THUMBNAIL_SIZE = getattr(settings,
 ## number of times a page can be redirected
 SHORTIM_REDIRECT_LIMIT = 10
 
+## api rate limit
+SHORTIM_RATELIMIT_MINUTE = getattr(settings,
+    'SHORTIM_RATELIMIT_MINUTE', 5)
+SHORTIM_RATELIMIT_HOUR = getattr(settings,
+    'SHORTIM_RATELIMIT_HOUR', 50)
+
 class RedirectLimitError(Exception):
     pass
 
@@ -46,6 +53,26 @@ class ShortURL(models.Model):
 
     def __unicode__(self):
         return self.get_short_full_url()
+
+    def clean(self):
+
+        # if the object is being created, check the rate limits
+        if self.pk:
+            return
+
+        # minute rate limit
+        rate_minute = datetime.now() - timedelta(minutes=SHORTIM_RATELIMIT_MINUTE)
+        minute_count = ShortURL.objects.filter(remote_user=self.remote_user,
+                date__gte=rate_minute).count()
+        if minute_count >= SHORTIM_RATELIMIT_MINUTE:
+            raise ValidationError(_('Rate limite exceeded.'))
+
+        # hour rate limit
+        rate_hour = datetime.now() - timedelta(hours=SHORTIM_RATELIMIT_HOUR)
+        hour_count = ShortURL.objects.filter(remote_user=self.remote_user,
+                date__gte=rate_hour).count()
+        if hour_count >= SHORTIM_RATELIMIT_HOUR:
+            raise ValidationError(_('Rate limit exceeded.'))
 
     @staticmethod
     def _get_response_html(url, redirect_count=0):
