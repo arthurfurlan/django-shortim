@@ -1,2 +1,10 @@
-*.pyc
+*.py[co]
 *.mo
+.installed.cfg
+bin
+develop-eggs
+dist
+downloads
+eggs
+parts
+src/*.egg-info
