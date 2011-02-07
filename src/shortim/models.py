@@ -31,9 +31,9 @@ SHORTIM_REDIRECT_LIMIT = 10
 
 ## api rate limit
 SHORTIM_RATELIMIT_MINUTE = getattr(settings,
-    'SHORTIM_RATELIMIT_MINUTE', 5)
+    'SHORTIM_RATELIMIT_MINUTE', 100)
 SHORTIM_RATELIMIT_HOUR = getattr(settings,
-    'SHORTIM_RATELIMIT_HOUR', 50)
+    'SHORTIM_RATELIMIT_HOUR', 5000)
 
 class RedirectLimitError(Exception):
     pass
