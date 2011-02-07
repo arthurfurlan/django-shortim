@@ -22,7 +22,7 @@ setup(
     description=("Django application for creating short URLs. "
                  "This code is currently running on http://va.mu."),
     author='Arthur Furlan',
-#     long_description = read('README.rst'),
+    long_description = read('README'),
     author_email='afurlan@afurlan.org',
     packages=find_packages('src'),
     package_dir={'': 'src'},
