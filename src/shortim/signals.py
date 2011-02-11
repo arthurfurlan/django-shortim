@@ -78,9 +78,9 @@ def upload_301works(*args, **kwargs):
     temp_file = '/tmp/%s.csv' % unique_identifier
     f = open(temp_file, 'w+')
     for u in ShortURL.objects.all().order_by('id'):
-        line = '%s,%s,%s,%d\n' % (u.get_short_full_url(),
+        line = u'%s,%s,%s,%d\n' % (u.get_short_full_url(),
                 u.url, u.date.isoformat(), u.hits)
-        f.write(line)
+        f.write(line.encode('utf-8'))
     f.close()
 
     ## create the upload command via curl (FIXME: rewrite using pycurl)
