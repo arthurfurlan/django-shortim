@@ -93,7 +93,11 @@ class ShortURL(models.Model):
                 url += '/'
 
         ## extract server address and server path
-        server_addr, server_path = url.split('/', 1)
+        try:
+           server_addr, server_path = url.split('/', 1)
+        except ValueError:
+           server_addr = url
+           server_path = ''
         server_path = '/' + server_path
 
         ## get the server port from "domain:port" urls
