@@ -74,6 +74,11 @@ class ShortURL(models.Model):
         if hour_count >= SHORTIM_RATELIMIT_HOUR:
             raise ValidationError(_('Rate limit exceeded.'))
 
+    def is_local_url(self):
+        domain = self.url.split('/')[2]
+        current_site = Site.objects.get_current()
+        return current_site.domain == domain
+
     @staticmethod
     def _get_response_html(url, redirect_count=0):
 
@@ -137,6 +142,9 @@ class ShortURL(models.Model):
         except ShortURL.DoesNotExist:
             instance = ShortURL(url=url, remote_user=remote_user)
 
+        if instance.is_local_url():
+            return instance
+
         ## get the canonical_url of the page
         if canonical and instance.canonical_url is None:
             instance.canonical_url = ShortURL.get_canonical_url(url)
@@ -174,10 +182,16 @@ class ShortURL(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
+        if self.is_local_url():
+            return self.url
+
         code = SequenceMapper.from_decimal(self.id)
         return ('shortim_preview', (), {'code':code})
 
     def get_absolute_full_url(self):
+        if self.is_local_url():
+            return self.url
+
         scheme = getattr(settings, 'SHORTIM_SITE_SCHEME', 'http')
         cur_site = Site.objects.get_current()
         return scheme.lower() + '://' + cur_site.domain \
@@ -188,6 +202,9 @@ class ShortURL(models.Model):
         return '/' + code
 
     def get_short_full_url(self):
+        if self.is_local_url():
+            return self.url
+
         scheme = getattr(settings, 'SHORTIM_SITE_SCHEME', 'http')
         cur_site = Site.objects.get_current()
         return scheme.lower() + '://' + cur_site.domain \
