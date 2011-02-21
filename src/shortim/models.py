@@ -40,24 +40,24 @@ class ShortURLManager(models.Manager):
             annotate(tt_hits=models.Count('shorturl_hits')).\
             order_by('-tt_hits', '-date')
 
-    def tt_last_hour(self):
+    def tt_last_hour(self, ranking_size=SHORTIM_RANKING_SIZE):
         tt_date = datetime.now() - timedelta(hours=1)
-        return self.tt(tt_date)
+        return self.tt(tt_date)[:ranking_size]
 
-    def tt_last_day(self):
+    def tt_last_day(self, ranking_size=SHORTIM_RANKING_SIZE):
         tt_date = datetime.now() - timedelta(days=1)
-        return self.tt(tt_date)
+        return self.tt(tt_date)[:ranking_size]
 
-    def tt_last_week(self):
+    def tt_last_week(self, ranking_size=SHORTIM_RANKING_SIZE):
         tt_date = datetime.now() - timedelta(weeks=1)
-        return self.tt(tt_date)
+        return self.tt(tt_date)[:ranking_size]
 
-    def tt_last_month(self):
+    def tt_last_month(self, ranking_size=SHORTIM_RANKING_SIZE):
         tt_date = datetime.now() - timedelta(days=30)
-        return self.tt(tt_date)
+        return self.tt(tt_date)[:ranking_size]
 
-    def tt_forever(self):
-        return self.order_by('-hits', '-date')
+    def tt_forever(self, ranking_size=SHORTIM_RANKING_SIZE):
+        return self.order_by('-hits', '-date')[:ranking_size]
 
 class ShortURL(models.Model):
 
