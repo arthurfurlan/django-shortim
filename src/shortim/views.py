@@ -104,6 +104,5 @@ def redirect(request, code):
     shorturl = get_object_or_404(ShortURL, pk=object_id)
 
     ## record found, increment the hits and redirect
-    shorturl.hits += 1
-    shorturl.save()
+    shorturl.count_redirect(request)
     return HttpResponsePermanentRedirect(shorturl.url)

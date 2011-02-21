@@ -79,6 +79,10 @@ class ShortURL(models.Model):
         current_site = Site.objects.get_current()
         return current_site.domain == domain
 
+    def count_redirect(self, request):
+        self.hits += 1
+        self.save()
+
     @staticmethod
     def _get_response_html(url, redirect_count=0):
 
