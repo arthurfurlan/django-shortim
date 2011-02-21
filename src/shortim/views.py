@@ -93,6 +93,12 @@ def ranking(request, num_elements=10, template_name=None):
     info_dict = { 
         'queryset': queryset,
         'template_name': template_name,
+        'extra_context': {
+            'tt_last_hour': ShortURL.objects.tt_last_hour(),
+            'tt_last_day': ShortURL.objects.tt_last_day(),
+            'tt_last_week': ShortURL.objects.tt_last_day(),
+            'tt_last_month': ShortURL.objects.tt_last_month(),
+        },
     }
 
     return list_detail.object_list(request, **info_dict)

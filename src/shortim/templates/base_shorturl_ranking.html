@@ -9,4 +9,28 @@
     {% empty %}
         <li>{% trans "OMG! We don't have any URL submitted yet... weird." %}</li>
     {% endfor %}</ul>
+    <h3>Última hora</h3>
+    <ul>{% for object in shorturl.tt_last_hour %}
+        <li><a href="{{ object.get_absolute_url }}">{{ object.get_short_full_url }}</a></li>
+    {% empty %}
+        <li>{% trans "OMG! We don't have any URL submitted yet... weird." %}</li>
+    {% endfor %}</ul>
+    <h3>Último dia</h3>
+    <ul>{% for object in shorturl.tt_last_day %}
+        <li><a href="{{ object.get_absolute_url }}">{{ object.get_short_full_url }}</a></li>
+    {% empty %}
+        <li>{% trans "OMG! We don't have any URL submitted yet... weird." %}</li>
+    {% endfor %}</ul>
+    <h3>Última semana</h3>
+    <ul>{% for object in shorturl.tt_last_week %}
+        <li><a href="{{ object.get_absolute_url }}">{{ object.get_short_full_url }}</a></li>
+    {% empty %}
+        <li>{% trans "OMG! We don't have any URL submitted yet... weird." %}</li>
+    {% endfor %}</ul>
+    <h3>Último mês</h3>
+    <ul>{% for object in shorturl.tt_last_month %}
+        <li><a href="{{ object.get_absolute_url }}">{{ object.get_short_full_url }}</a></li>
+    {% empty %}
+        <li>{% trans "OMG! We don't have any URL submitted yet... weird." %}</li>
+    {% endfor %}</ul>
 {% endblock %}

@@ -17,6 +17,10 @@ import math
 SHORTIM_THUMBNAIL_SIZE = getattr(settings,
     'SHORTIM_THUMBNAIL_SIZE', 200)
 
+## number of entries displayed in the rankings
+SHORTIM_RANKING_SIZE = getattr(settings,
+    'SHORTIM_RANKING_SIZE', 10)
+
 ## number of times a page can be redirected
 SHORTIM_REDIRECT_LIMIT = 10
 
@@ -29,6 +33,32 @@ SHORTIM_RATELIMIT_HOUR = getattr(settings,
 class RedirectLimitError(Exception):
     pass
 
+class ShortURLManager(models.Manager):
+
+    def tt(self, tt_date):
+        return self.filter(shorturl_hits__date__gte=tt_date).\
+            annotate(tt_hits=models.Count('shorturl_hits')).\
+            order_by('-tt_hits', '-date')
+
+    def tt_last_hour(self):
+        tt_date = datetime.now() - timedelta(hours=1)
+        return self.tt(tt_date)
+
+    def tt_last_day(self):
+        tt_date = datetime.now() - timedelta(days=1)
+        return self.tt(tt_date)
+
+    def tt_last_week(self):
+        tt_date = datetime.now() - timedelta(weeks=1)
+        return self.tt(tt_date)
+
+    def tt_last_month(self):
+        tt_date = datetime.now() - timedelta(days=30)
+        return self.tt(tt_date)
+
+    def tt_forever(self):
+        return self.order_by('-hits', '-date')
+
 class ShortURL(models.Model):
 
     url = models.URLField('url', max_length=255, db_index=True, verify_exists=False)
@@ -37,6 +67,8 @@ class ShortURL(models.Model):
     hits = models.IntegerField('hits', default=0, editable=False)
     date = models.DateTimeField('date', auto_now_add=True)
     remote_user = models.IPAddressField('remote user')
+
+    objects = ShortURLManager()
 
     class Meta:
         ordering = ['-id', 'hits']
@@ -73,6 +105,10 @@ class ShortURL(models.Model):
     def count_redirect(self, request):
         self.hits += 1
         self.save()
+
+        shorturl_hit = ShortURLHit(shorturl=self)
+        shorturl_hit.remote_user = request.META['REMOTE_ADDR']
+        shorturl_hit.save()
 
     @staticmethod
     def _get_response_html(url, redirect_count=0):
@@ -204,3 +240,17 @@ class ShortURL(models.Model):
         cur_site = Site.objects.get_current()
         return scheme.lower() + '://' + cur_site.domain \
             + self.get_short_url()
+
+class ShortURLHit(models.Model):
+
+    shorturl = models.ForeignKey(ShortURL, related_name='shorturl_hits')
+    date = models.DateTimeField('date', auto_now_add=True)
+    remote_user = models.IPAddressField('remote user')
+
+    class Meta:
+        ordering = ['-shorturl__hits', '-date']
+        verbose_name = _('Short URL Hits')
+       
+    def __unicode__(self):
+        return self.shorturl.get_short_full_url() + \
+            self.date.strftime(' - %Y-%m-%d %T')
