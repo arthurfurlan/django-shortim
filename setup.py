@@ -16,7 +16,7 @@ def read(fname):
 
 setup(
     name="django-shortim",
-    version="1.2",
+    version="1.2.1",
     url='http://github.com/valvim/django-shortim',
     license='GPLv3',
     description=("Django application for creating short URLs. "
