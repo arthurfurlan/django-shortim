@@ -6,7 +6,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from sequencemapper import SequenceMapper
-from BeautifulSoup import BeautifulSoup, HTMLParseError
+from BeautifulSoup import BeautifulSoup
 from itertools import product
 from datetime import datetime, timedelta
 import httplib
@@ -197,7 +197,7 @@ class ShortURL(models.Model):
 
         try:
             soup = BeautifulSoup(html)
-        except HTMLParseError:
+        except:
             return ''
 
         for link in soup.findAll('link'):
