@@ -35,9 +35,12 @@ class RedirectLimitError(Exception):
 
 class ShortURLManager(models.Manager):
 
-    def tt(self, tt_date):
-        return self.filter(shorturl_hits__date__gte=tt_date).\
-            annotate(tt_hits=models.Count('shorturl_hits')).\
+    def tt(self, tt_date=None):
+        if tt_date:
+            queryset = self.filter(shorturl_hits__date__gte=tt_date)
+        else:
+            queryset = self
+        return queryset.annotate(tt_hits=models.Count('shorturl_hits')).\
             order_by('-tt_hits', '-date')
 
     def tt_last_hour(self, ranking_size=SHORTIM_RANKING_SIZE):
@@ -57,7 +60,10 @@ class ShortURLManager(models.Manager):
         return self.tt(tt_date)[:ranking_size]
 
     def tt_forever(self, ranking_size=SHORTIM_RANKING_SIZE):
-        return self.order_by('-hits', '-date')[:ranking_size]
+        queryset = self.tt()
+        if ranking_size:
+            return queryset[:ranking_size]
+        return queryset
 
 class ShortURL(models.Model):
 
@@ -205,6 +211,22 @@ class ShortURL(models.Model):
                 return link.get('href')
 
         return ''
+
+    @staticmethod
+    def get_content_title(url):
+
+        ## get the html content
+        html = ShortURL._get_response_html(url)
+        if not html:
+            return ''
+
+        try:
+            soup = BeautifulSoup(html)
+        except:
+            return ''
+
+        return soup.title.string
+
 
     def get_thumbnail_tag(self):
         api = 'http://api.thumbalizr.com/?url=%s&width=%d'

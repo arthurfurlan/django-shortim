@@ -86,12 +86,10 @@ def preview(request, code=None, api=False, template_name=None):
 def ranking(request, num_elements=10, template_name=None):
 
     ## get the list of objets ordered by their number of hits
-    ordering = ['-hits', '-date']
-    queryset = ShortURL.objects.order_by(*ordering)[:num_elements]
     template_name = template_name or 'base_shorturl_ranking.html'
 
-    info_dict = { 
-        'queryset': queryset,
+    info_dict = {
+        'queryset': ShortURL.objects.tt_forever(num_elements),
         'template_name': template_name,
         'extra_context': {
             'tt_last_hour': ShortURL.objects.tt_last_hour(),
