@@ -79,7 +79,7 @@ def upload_301works(*args, **kwargs):
     f = open(temp_file, 'w+')
     for u in ShortURL.objects.all().order_by('id'):
         line = u'%s,%s,%s,%d\n' % (u.get_short_full_url(),
-                u.url, u.date.isoformat(), u.hits)
+                u.url, u.date.isoformat(), u.hits.count())
         f.write(line.encode('utf-8'))
     f.close()
 

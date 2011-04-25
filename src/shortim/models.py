@@ -37,10 +37,10 @@ class ShortURLManager(models.Manager):
 
     def tt(self, tt_date=None):
         if tt_date:
-            queryset = self.filter(shorturl_hits__date__gte=tt_date)
+            queryset = self.filter(hits__date__gte=tt_date)
         else:
             queryset = self
-        return queryset.annotate(tt_hits=models.Count('shorturl_hits')).\
+        return queryset.annotate(tt_hits=models.Count('hits')).\
             order_by('-tt_hits', '-date')
 
     def tt_last_hour(self, ranking_size=SHORTIM_RANKING_SIZE):
@@ -70,14 +70,13 @@ class ShortURL(models.Model):
     url = models.URLField('url', max_length=255, db_index=True, verify_exists=False)
     canonical_url = models.URLField('canonical url', max_length=255,
             null=True, blank=True, default=None, verify_exists=False)
-    hits = models.IntegerField('hits', default=0, editable=False)
     date = models.DateTimeField('date', auto_now_add=True)
     remote_user = models.IPAddressField('remote user')
 
     objects = ShortURLManager()
 
     class Meta:
-        ordering = ['-id', 'hits']
+        ordering = ['-id']
         verbose_name = _('Short URL')
 
     def __unicode__(self):
@@ -109,9 +108,6 @@ class ShortURL(models.Model):
         return current_site.domain == domain
 
     def count_redirect(self, request):
-        self.hits += 1
-        self.save()
-
         shorturl_hit = ShortURLHit(shorturl=self)
         shorturl_hit.remote_user = request.META['REMOTE_ADDR']
         shorturl_hit.save()
@@ -265,12 +261,12 @@ class ShortURL(models.Model):
 
 class ShortURLHit(models.Model):
 
-    shorturl = models.ForeignKey(ShortURL, related_name='shorturl_hits')
+    shorturl = models.ForeignKey(ShortURL, related_name='hits')
     date = models.DateTimeField('date', auto_now_add=True)
     remote_user = models.IPAddressField('remote user')
 
     class Meta:
-        ordering = ['-shorturl__hits', '-date']
+        ordering = ['-date']
         verbose_name = _('Short URL Hits')
        
     def __unicode__(self):
