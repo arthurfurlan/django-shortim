@@ -103,7 +103,7 @@ class ShortURL(models.Model):
         minute_count = ShortURL.objects.filter(remote_user=self.remote_user,
                 date__gte=rate_minute).count()
         if minute_count >= SHORTIM_RATELIMIT_MINUTE:
-            raise ValidationError(_('Rate limite exceeded.'))
+            raise ValidationError(_('Rate limit exceeded.'))
 
         # hour rate limit
         rate_hour = datetime.now() - timedelta(hours=SHORTIM_RATELIMIT_HOUR)
