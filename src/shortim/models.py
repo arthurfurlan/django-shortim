@@ -7,11 +7,14 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from sequencemapper import SequenceMapper
 from BeautifulSoup import BeautifulSoup
+from pygooglechart import QRChart
 from itertools import product
 from datetime import datetime, timedelta
+from shortim import signals
 import httplib
 import urllib
 import math
+import os
 
 ## allow user to configure the thumbail size
 SHORTIM_THUMBNAIL_SIZE = getattr(settings,
@@ -29,6 +32,13 @@ SHORTIM_RATELIMIT_MINUTE = getattr(settings,
     'SHORTIM_RATELIMIT_MINUTE', 100)
 SHORTIM_RATELIMIT_HOUR = getattr(settings,
     'SHORTIM_RATELIMIT_HOUR', 5000)
+
+## QRCODE Settings
+SHORTIM_QRCODE_SIZE = getattr(settings,
+    'SHORTIM_QRCODE_SIZE', 100)
+SHORTIM_QRCODE_DIR = getattr(settings,
+    'SHORTIM_QRCODE_DIR', 'qrcode')
+
 
 class RedirectLimitError(Exception):
     pass
@@ -101,6 +111,20 @@ class ShortURL(models.Model):
                 date__gte=rate_hour).count()
         if hour_count >= SHORTIM_RATELIMIT_HOUR:
             raise ValidationError(_('Rate limit exceeded.'))
+
+    def get_qrcode_path(self):
+        code = SequenceMapper.from_decimal(self.id)
+        return os.path.join(settings.MEDIA_ROOT, SHORTIM_QRCODE_DIR, code + '.png')
+
+    def get_qrcode_url(self):
+        code = SequenceMapper.from_decimal(self.id)
+        return os.path.join(settings.MEDIA_URL, SHORTIM_QRCODE_DIR, code + '.png')
+
+    def create_qrcode_image(self):
+        chart = QRChart(SHORTIM_QRCODE_SIZE, SHORTIM_QRCODE_SIZE)
+        chart.add_data(self.get_short_full_url())
+        chart.set_ec('L', 0)
+        chart.download(self.get_qrcode_path())
 
     def is_local_url(self):
         domain = self.url.split('/')[2]
@@ -272,3 +296,5 @@ class ShortURLHit(models.Model):
     def __unicode__(self):
         return self.shorturl.get_short_full_url() + \
             self.date.strftime(' - %Y-%m-%d %T')
+
+models.signals.post_save.connect(signals.create_qrcode_image, sender=ShortURL)

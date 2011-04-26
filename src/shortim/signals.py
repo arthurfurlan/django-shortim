@@ -2,7 +2,6 @@
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from models import ShortURL
 from datetime import datetime
 import subprocess
 import os
@@ -44,6 +43,7 @@ def change_site_domain(sender, **kwargs):
     print 'Current site configured.\n'
 
 def create_first_shorturl(sender, **kwargs):
+    from models import ShortURL
 
     if not kwargs.get('interactive'):
         return
@@ -71,6 +71,7 @@ def create_first_shorturl(sender, **kwargs):
     print 'First short URL created: %s\n' % shorturl.get_absolute_full_url()
 
 def upload_301works(*args, **kwargs):
+    from models import ShortURL
 
     ## create the 301works.org file
     unique_identifier = settings.SHORTIM_301WORKS_CREATOR \
@@ -109,3 +110,11 @@ def upload_301works(*args, **kwargs):
     ## execute the command and upload the file
     subprocess.call(curl_command, shell=True)
     os.unlink(temp_file)
+
+def create_qrcode_image(sender, instance, **kwargs):
+    if not kwargs.get('created'):
+        return
+
+    qrcode_path = instance.get_qrcode_path()
+    if not os.path.exists(qrcode_path):
+        instance.create_qrcode_image()
