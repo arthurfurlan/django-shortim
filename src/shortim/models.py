@@ -34,10 +34,14 @@ SHORTIM_RATELIMIT_HOUR = getattr(settings,
     'SHORTIM_RATELIMIT_HOUR', 5000)
 
 ## QRCODE Settings
+SHORTIM_QRCODE_ENABLED = getattr(settings,
+    'SHORTIM_QRCODE_ENABLED', False)
 SHORTIM_QRCODE_SIZE = getattr(settings,
     'SHORTIM_QRCODE_SIZE', 100)
 SHORTIM_QRCODE_DIR = getattr(settings,
     'SHORTIM_QRCODE_DIR', 'qrcode')
+SHORTIM_QRCODE_URL = getattr(settings,
+    'SHORTIM_QRCODE_URL', None)
 
 
 class RedirectLimitError(Exception):
@@ -118,7 +122,10 @@ class ShortURL(models.Model):
 
     def get_qrcode_url(self):
         code = SequenceMapper.from_decimal(self.id)
-        return os.path.join(settings.MEDIA_URL, SHORTIM_QRCODE_DIR, code + '.png')
+        if SHORTIM_QRCODE_URL:
+            return SHORTIM_QRCODE_URL % code
+        else:
+            return os.path.join(settings.MEDIA_URL, SHORTIM_QRCODE_DIR, code + '.png')
 
     def create_qrcode_image(self):
         chart = QRChart(SHORTIM_QRCODE_SIZE, SHORTIM_QRCODE_SIZE)

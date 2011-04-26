@@ -115,6 +115,9 @@ def create_qrcode_image(sender, instance, **kwargs):
     if not kwargs.get('created'):
         return
 
-    qrcode_path = instance.get_qrcode_path()
-    if not os.path.exists(qrcode_path):
-        instance.create_qrcode_image()
+    from models import SHORTIM_QRCODE_ENABLED
+
+    if SHORTIM_QRCODE_ENABLED:
+        qrcode_path = instance.get_qrcode_path()
+        if not os.path.exists(qrcode_path):
+            instance.create_qrcode_image()
