@@ -228,7 +228,7 @@ class ShortURL(models.Model):
 
         ## if the page redirects to another one, go to recursive
         location = response.getheader('location')
-        if location:
+        if response.status != 200 and location:
             redirect_count += 1  # avoid infinite loops
 
             url = ShortURL._build_location_url(orig_url, location)
