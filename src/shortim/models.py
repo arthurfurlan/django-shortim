@@ -119,10 +119,16 @@ class ShortURL(models.Model):
         if hour_count >= SHORTIM_RATELIMIT_HOUR:
             raise ValidationError(_('Rate limit exceeded.'))
 
-    def _normalize_html_tag(self, content):
+    def _normalize_html_tag(self, content, max_length=None):
         if not content:
             return ''
-        return u' '.join(map(lambda x: x.strip(), content.splitlines())).strip()
+
+        content = u' '.join(map(lambda x: x.strip(), content.splitlines())).strip()
+
+        if max_length is not None:
+            return content[:max_length]
+        else:
+            return content
 
     def collect_content_info(self):
         html, mime = ShortURL._get_response_html(self.url)
@@ -137,11 +143,12 @@ class ShortURL(models.Model):
         try:
             soup = BeautifulSoup(html)
         except:
+            self.save()
             return
 
         # get the page title
         if soup.title:
-            self.title = self._normalize_html_tag(soup.title.string)
+            self.title = self._normalize_html_tag(soup.title.string, 255)
 
         # get the canonical url
         for link in soup.findAll('link'):
