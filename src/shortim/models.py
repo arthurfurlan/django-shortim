@@ -86,6 +86,9 @@ class ShortURL(models.Model):
             null=True, blank=True, default=None, verify_exists=False)
     date = models.DateTimeField('date', auto_now_add=True)
     remote_user = models.IPAddressField('remote user')
+    collect_date = models.DateTimeField('collect date', blank=True, null=True, default=None)
+    title = models.CharField('title', max_length=255, blank=True, null=True, default=None)
+    mime = models.CharField('mime', max_length=100, blank=True, null=True, default=None)
 
     objects = ShortURLManager()
 
@@ -115,6 +118,35 @@ class ShortURL(models.Model):
                 date__gte=rate_hour).count()
         if hour_count >= SHORTIM_RATELIMIT_HOUR:
             raise ValidationError(_('Rate limit exceeded.'))
+
+    def _normalize_html_tag(self, content):
+        return u' '.join(map(lambda x: x.strip(), content.splitlines())).strip()
+
+    def collect_content_info(self):
+        html = ShortURL._get_response_html(self.url)
+        self.collect_date = datetime.now()
+
+        print html
+
+        if not html:
+            self.save()
+            return
+
+        try:
+            soup = BeautifulSoup(html)
+        except:
+            return
+
+        # get the page title
+        if soup.title:
+            self.title = self._normalize_html_tag(soup.title.string)
+
+        # get the canonical url
+        for link in soup.findAll('link'):
+            if link.get('rel') == 'canonical' or link.get('rev') == 'canonical':
+                self.canonical_url = link.get('href')
+
+        self.save()
 
     def get_qrcode_path(self):
         code = SequenceMapper.from_decimal(self.id)
