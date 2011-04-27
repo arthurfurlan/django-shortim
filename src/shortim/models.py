@@ -138,7 +138,8 @@ class ShortURL(models.Model):
             return
 
         # get the page title
-        self.title = self._normalize_html_tag(soup.title.string)
+        if self.title:
+            self.title = self._normalize_html_tag(soup.title.string)
 
         # get the canonical url
         for link in soup.findAll('link'):
