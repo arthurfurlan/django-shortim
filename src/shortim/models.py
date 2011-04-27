@@ -125,8 +125,10 @@ class ShortURL(models.Model):
         return u' '.join(map(lambda x: x.strip(), content.splitlines())).strip()
 
     def collect_content_info(self):
-        html = ShortURL._get_response_html(self.url)
+        html, mime = ShortURL._get_response_html(self.url)
+
         self.collect_date = datetime.now()
+        self.mime = mime
 
         if not html:
             self.save()
@@ -214,7 +216,7 @@ class ShortURL(models.Model):
             conn.request("GET", server_path)
             response = conn.getresponse()
         except:
-            return ''
+            return '', ''
 
         ## if the page redirects to another one, go to recursive
         location = response.getheader('location')
@@ -227,10 +229,10 @@ class ShortURL(models.Model):
         ## if the page does not return an HTML content, return
         content_type = response.getheader('content-type')
         if 'text/html' not in content_type:
-            return ''
+            return '', content_type
 
         ## finally, return the HTML response
-        return response.read()
+        return response.read(), content_type
 
     @staticmethod
     def _build_location_url(url, location):
