@@ -126,8 +126,6 @@ class ShortURL(models.Model):
         html = ShortURL._get_response_html(self.url)
         self.collect_date = datetime.now()
 
-        print html
-
         if not html:
             self.save()
             return
