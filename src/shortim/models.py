@@ -15,6 +15,7 @@ import httplib
 import urllib
 import math
 import os
+import re
 
 ## allow user to configure the thumbail size
 SHORTIM_THUMBNAIL_SIZE = getattr(settings,
