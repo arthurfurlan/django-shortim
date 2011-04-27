@@ -228,7 +228,7 @@ class ShortURL(models.Model):
 
         ## if the page does not return an HTML content, return
         content_type = response.getheader('content-type')
-        if 'text/html' not in content_type:
+        if not content_type or 'text/html' not in content_type:
             return '', content_type
 
         ## finally, return the HTML response
