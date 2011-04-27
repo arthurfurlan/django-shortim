@@ -145,6 +145,7 @@ class ShortURL(models.Model):
 
     @staticmethod
     def _get_response_html(url, redirect_count=0):
+        orig_url = url
 
         ## check if the limit was reached
         if redirect_count >= SHORTIM_REDIRECT_LIMIT:
@@ -187,7 +188,9 @@ class ShortURL(models.Model):
         location = response.getheader('location')
         if location:
             redirect_count += 1  # avoid infinite loops
-            return ShortURL._get_response_html(location, redirect_count)
+
+            url = ShortURL._build_location_url(orig_url, location)
+            return ShortURL._get_response_html(url, redirect_count)
 
         ## if the page does not return an HTML content, return
         content_type = response.getheader('content-type')
@@ -196,6 +199,18 @@ class ShortURL(models.Model):
 
         ## finally, return the HTML response
         return response.read()
+
+    @staticmethod
+    def _build_location_url(url, location):
+        if location.startswith('http:') or location.startswith('https://'):
+            return location
+        elif location.startswith('/'):
+            url = url.split('/', 3)
+            url = '/'.join(url[:-1])
+            return url + location
+        else:
+            url = re.sub('[^/]+$', '', url)
+            return url + location
 
     @staticmethod
     def get_or_create_object(url, remote_user, canonical=False):
