@@ -153,7 +153,7 @@ class ShortURL(models.Model):
         # get the canonical url
         for link in soup.findAll('link'):
             if link.get('rel') == 'canonical' or link.get('rev') == 'canonical':
-                self.canonical_url = link.get('href')
+                self.canonical_url = self._normalize_html_tag(link.get('href'), 255)
 
         self.save()
 
