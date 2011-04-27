@@ -120,6 +120,8 @@ class ShortURL(models.Model):
             raise ValidationError(_('Rate limit exceeded.'))
 
     def _normalize_html_tag(self, content):
+        if not content:
+            return ''
         return u' '.join(map(lambda x: x.strip(), content.splitlines())).strip()
 
     def collect_content_info(self):
@@ -136,8 +138,7 @@ class ShortURL(models.Model):
             return
 
         # get the page title
-        if soup.title:
-            self.title = self._normalize_html_tag(soup.title.string)
+        self.title = self._normalize_html_tag(soup.title.string)
 
         # get the canonical url
         for link in soup.findAll('link'):
