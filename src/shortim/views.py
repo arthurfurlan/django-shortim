@@ -66,7 +66,7 @@ def preview(request, code=None, api=False, template_name=None):
             code = url.rstrip('/').split('/')[-1]
         object_id = SequenceMapper.to_decimal(code)
         try:
-            shorturl = ShortURL.objects.get(pk=object_id).url
+            shorturl = ShortURL.objects.active().get(pk=object_id).url
         except ShortURL.DoesNotExist:
             shorturl = ''
         return _api_response(shorturl, request.GET.get('type'))
@@ -76,7 +76,7 @@ def preview(request, code=None, api=False, template_name=None):
     template_name = template_name or 'base_shorturl_preview.html'
 
     info_dict = {
-        'queryset': ShortURL.objects,
+        'queryset': ShortURL.objects.active(),
         'object_id': object_id,
         'template_name': template_name,
     }
@@ -105,7 +105,7 @@ def redirect(request, code):
 
     ## get the object id and lookup for the record
     object_id = SequenceMapper.to_decimal(code)
-    shorturl = get_object_or_404(ShortURL, pk=object_id)
+    shorturl = get_object_or_404(ShortURL.objects.active(), pk=object_id)
 
     ## record found, increment the hits and redirect
     shorturl.count_redirect(request)

@@ -50,11 +50,13 @@ class RedirectLimitError(Exception):
 
 class ShortURLManager(models.Manager):
 
+    def active(self):
+        return self.filter(removed=False)
+
     def tt(self, tt_date=None):
+        queryset = self.active()
         if tt_date:
             queryset = self.filter(hits__date__gte=tt_date)
-        else:
-            queryset = self
         return queryset.annotate(tt_hits=models.Count('hits')).\
             order_by('-tt_hits', '-date')
 
@@ -90,6 +92,7 @@ class ShortURL(models.Model):
     collect_date = models.DateTimeField('collect date', blank=True, null=True, default=None)
     title = models.CharField('title', max_length=255, blank=True, null=True, default=None)
     mime = models.CharField('mime', max_length=100, blank=True, null=True, default=None)
+    removed = models.BooleanField('removed', default=False)
 
     objects = ShortURLManager()
 
@@ -262,7 +265,7 @@ class ShortURL(models.Model):
 
         ## it is not a local instance, try to get an existent object
         try:
-            instance = ShortURL.objects.get(url=url)
+            instance = ShortURL.objects.active().get(url=url)
         except ShortURL.DoesNotExist:
             instance = ShortURL(url=url, remote_user=remote_user)
 
