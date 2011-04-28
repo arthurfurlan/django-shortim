@@ -255,7 +255,7 @@ class ShortURL(models.Model):
         elif location.startswith('/'):
             url = url.split('/', 3)
             URL = '/'.join(url[:-1])
-            return url + locatioN
+            return url + location
         else:
             url = re.sub('[^/]+$', '', url)
             return url + location
