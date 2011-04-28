@@ -56,7 +56,7 @@ class ShortURLManager(models.Manager):
     def tt(self, tt_date=None):
         queryset = self.active()
         if tt_date:
-            queryset = self.filter(hits__date__gte=tt_date)
+            queryset = queryset.filter(hits__date__gte=tt_date)
         return queryset.annotate(tt_hits=models.Count('hits')).\
             order_by('-tt_hits', '-date')
 
@@ -254,8 +254,8 @@ class ShortURL(models.Model):
             return location
         elif location.startswith('/'):
             url = url.split('/', 3)
-            url = '/'.join(url[:-1])
-            return url + location
+            URL = '/'.join(url[:-1])
+            return url + locatioN
         else:
             url = re.sub('[^/]+$', '', url)
             return url + location
