@@ -218,9 +218,12 @@ class ShortURL(models.Model):
         except ValueError:
             pass
 
-        ## start an HTTP connection
+        ## start an HTTP/HTTPS connection
         try:
-            conn = httplib.HTTPConnection(server_addr, server_port)
+            if server_port == 443:
+                conn = httplib.HTTPSConnection(server_addr, server_port, timeout=10)
+            else:
+                conn = httplib.HTTPConnection(server_addr, server_port, timeout=10)
             conn.request("GET", server_path)
             response = conn.getresponse()
         except:
