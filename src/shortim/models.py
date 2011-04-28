@@ -267,7 +267,7 @@ class ShortURL(models.Model):
         try:
             instance = ShortURL.objects.active().get(url=url)
         except ShortURL.DoesNotExist:
-            instance = ShortURL(url=url, remote_user=remote_user)
+            instance = ShortURL(url=url, remote_user=remote_user, removed=False)
 
         if instance.is_local_url():
             return instance
