@@ -187,7 +187,7 @@ class ShortURL(models.Model):
         return self.mime and self.mime.startswith('image/')
 
     def is_audio(self):
-        return self.mime and elf.mime.startswith('audio/')
+        return self.mime and self.mime.startswith('audio/')
 
     def is_video(self):
         return self.mime and self.mime.startswith('video/')
