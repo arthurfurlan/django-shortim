@@ -183,6 +183,18 @@ class ShortURL(models.Model):
         current_site = Site.objects.get_current()
         return current_site.domain == domain
 
+    def is_image(self):
+        return self.mime and self.mime.startswith('image/')
+
+    def is_audio(self):
+        return self.mime and elf.mime.startswith('audio/')
+
+    def is_video(self):
+        return self.mime and self.mime.startswith('video/')
+
+    def is_html(self):
+        return self.mime and self.mime.startswith('text/html')
+
     def count_redirect(self, request):
         shorturl_hit = ShortURLHit(shorturl=self)
         shorturl_hit.remote_user = request.META['REMOTE_ADDR']
