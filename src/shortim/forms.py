@@ -12,6 +12,7 @@ class ShortURLForm(forms.ModelForm):
 
     class Meta:
         model = ShortURL
+        exclude = ('collect_tries',)
 
     def save(self, request, api):
         
