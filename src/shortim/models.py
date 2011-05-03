@@ -90,6 +90,7 @@ class ShortURL(models.Model):
     date = models.DateTimeField('date', auto_now_add=True)
     remote_user = models.IPAddressField('remote user')
     collect_date = models.DateTimeField('collect date', blank=True, null=True, default=None)
+    collect_tries = models.IntegerField('collect tries', default=0)
     title = models.CharField('title', max_length=255, blank=True, null=True, default=None)
     mime = models.CharField('mime', max_length=100, blank=True, null=True, default=None)
     removed = models.BooleanField('removed', default=False)
@@ -135,6 +136,11 @@ class ShortURL(models.Model):
             return content
 
     def collect_content_info(self):
+
+        ## increment the collect tries
+        self.collect_tries += 1
+        self.save()
+
         html, mime = ShortURL._get_response_html(self.url)
 
         self.collect_date = datetime.now()
@@ -279,7 +285,8 @@ class ShortURL(models.Model):
         try:
             instance = ShortURL.objects.active().get(url=url)
         except ShortURL.DoesNotExist:
-            instance = ShortURL(url=url, remote_user=remote_user, removed=False)
+            instance = ShortURL(url=url, remote_user=remote_user,
+                removed=False, collect_tries=0)
 
         if instance.is_local_url():
             return instance
