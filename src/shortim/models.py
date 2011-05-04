@@ -93,6 +93,7 @@ class ShortURL(models.Model):
     collect_tries = models.IntegerField('collect tries', default=0)
     title = models.CharField('title', max_length=255, blank=True, null=True, default=None)
     mime = models.CharField('mime', max_length=100, blank=True, null=True, default=None)
+    exclusive = models.BooleanField('exclusive', default=False)
     removed = models.BooleanField('removed', default=False)
 
     objects = ShortURLManager()
@@ -279,14 +280,19 @@ class ShortURL(models.Model):
             return url + location
 
     @staticmethod
-    def get_or_create_object(url, remote_user, canonical=False):
+    def get_or_create_object(url, remote_user, canonical=False, exclusive=False):
 
         ## it is not a local instance, try to get an existent object
-        try:
-            instance = ShortURL.objects.active().get(url=url)
-        except ShortURL.DoesNotExist:
+        instance = None
+        if not exclusive:
+            try:
+                instance = ShortURL.objects.active().get(url=url, exclusive=False)
+            except ShortURL.DoesNotExist:
+                pass
+        
+        if not instance:
             instance = ShortURL(url=url, remote_user=remote_user,
-                removed=False, collect_tries=0)
+                exclusive=exclusive, removed=False, collect_tries=0)
 
         if instance.is_local_url():
             return instance

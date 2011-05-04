@@ -21,6 +21,8 @@ def create(request, api=False, template_name=None):
 
         ## include the remote address int the submitted data
         data = getattr(request, request.method).copy()
+        if api:
+            data['exclusive'] = data.get('exclusive') == '1'
         data['remote_user'] = request.META['REMOTE_ADDR']
 
         ## validate and process the form

@@ -18,9 +18,11 @@ class ShortURLForm(forms.ModelForm):
         
         url = self.cleaned_data['url']
         remote_user = self.cleaned_data['remote_user']
+        exclusive = self.cleaned_data.get('exclusive', False)
         canonical = self.cleaned_data.get('canonical', False)
 
-        instance = ShortURL.get_or_create_object(url, remote_user, canonical)
+        instance = ShortURL.get_or_create_object(url,
+            remote_user, canonical, exclusive)
 
         if not api:
             message = _('Woow, your URL was successfully shortened.')
