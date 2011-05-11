@@ -25,6 +25,10 @@ SHORTIM_THUMBNAIL_SIZE = getattr(settings,
 SHORTIM_RANKING_SIZE = getattr(settings,
     'SHORTIM_RANKING_SIZE', 10)
 
+## user-agent used in the http connections
+SHORTIM_HTTP_USERAGENT = getattr(settings,
+    'SHORTIM_HTTP_USERAGENT', 'django-shortim')
+
 ## number of times a page can be redirected
 SHORTIM_REDIRECT_LIMIT = 10
 
@@ -246,7 +250,13 @@ class ShortURL(models.Model):
                 conn = httplib.HTTPSConnection(server_addr, server_port, timeout=10)
             else:
                 conn = httplib.HTTPConnection(server_addr, server_port, timeout=10)
-            conn.request("GET", server_path)
+            
+            ## create the connection headers
+            headers = {
+                'User-Agent':SHORTIM_HTTP_USERAGENT,
+            }
+
+            conn.request("GET", server_path, headers=headers)
             response = conn.getresponse()
         except:
             return '', ''
