@@ -23,6 +23,7 @@ def create(request, api=False, template_name=None):
         data = getattr(request, request.method).copy()
         if api:
             data['exclusive'] = data.get('exclusive') == '1'
+            data['confirmation'] = data.get('confirmation') == '1'
         data['remote_user'] = request.META['REMOTE_ADDR']
 
         ## validate and process the form
@@ -103,11 +104,17 @@ def ranking(request, num_elements=10, template_name=None):
 
     return list_detail.object_list(request, **info_dict)
 
-def redirect(request, code):
+def redirect(request, code, template_name=None):
 
     ## get the object id and lookup for the record
     object_id = SequenceMapper.to_decimal(code)
     shorturl = get_object_or_404(ShortURL.objects.active(), pk=object_id)
+
+    ## display the confirmation page
+    if shorturl.confirmation and request.GET.get('direct') != '1':
+        template_name = template_name or 'base_shorturl_redirect.html'
+        return render_to_response(template_name, locals(),
+            context_instance=RequestContext(request))
 
     ## record found, increment the hits and redirect
     shorturl.count_redirect(request)

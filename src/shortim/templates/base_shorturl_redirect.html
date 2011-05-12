@@ -1,0 +1,4 @@
+{% load i18n %}
+{% trans "This shorturl takes you to the following url:" %}
+<a href="{{ shorturl.get_absolute_short_url }}?direct=1">{{ shorturl.url }}</a><br />
+{% trans "Click on the link above if you would like to proceed." %}
