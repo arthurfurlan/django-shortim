@@ -3,27 +3,23 @@
 #
 # Strongly inspired (copied :D) from:
 # http://jacobian.org/writing/django-apps-with-buildout/
-#
-
 
 import os
-
 from setuptools import setup, find_packages
-
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
-    name="django-shortim",
-    version="1.2.6",
+    name='django-shortim',
+    version='0.2',
     url='http://github.com/valvim/django-shortim',
     license='GPLv3',
-    description=("Django application for creating short URLs. "
-                 "This code is currently running on http://va.mu."),
+    description=('Django application for creating short URLs. '
+                 'This code is currently running on http://va.mu.'),
     author='Arthur Furlan',
     long_description = read('README'),
-    author_email='afurlan@afurlan.org',
+    author_email='afurlan@valvim.com',
     packages=find_packages('src'),
     package_dir={'': 'src'},
     install_requires=['setuptools'],
